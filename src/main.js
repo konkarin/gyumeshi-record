@@ -5,6 +5,10 @@ import vuetify from './plugins/vuetify'
 
 import './assets/style.scss'
 
+import VModal from 'vue-js-modal'
+
+Vue.use(VModal)
+
 Vue.config.productionTip = false
 
 new Vue({

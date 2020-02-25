@@ -1,26 +1,6 @@
 <template>
   <div class="login">
-    <div>
-      <input
-        type="text"
-        name
-        :value="id"
-        placeholder="ID"
-      >
-    </div>
-    <div>
-      <input
-        type="password"
-        name
-        :value="password"
-        placeholder="パスワード"
-      >
-    </div>
-    <div>
-      <button type="submit">
-        ログイン
-      </button>
-    </div>
+    <login-form :button-name="buttonName" />
     <div>
       アカウントをお持ちでない方は
       <router-link to="/">
@@ -31,11 +11,13 @@
 </template>
 
 <script>
+
+import LoginForm from './LoginForm'
 export default {
+  components: { LoginForm },
   data () {
     return {
-      id: '',
-      password: ''
+      buttonName: 'ログイン'
     }
   }
 }

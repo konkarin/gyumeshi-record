@@ -2,33 +2,7 @@
   <div class="welcome">
     <h2>君だけの点数を付けよう！</h2>
     <div>
-      <input
-        type="text"
-        name
-        :value="id"
-        placeholder="ID"
-      >
-    </div>
-    <div>
-      <v-text-field
-        v-model="password"
-        :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-        :rules="[rules.required, rules.min]"
-        :type="showPassword ? 'text' : 'password'"
-        name="password"
-        label="パスワード"
-        hint="8文字以上"
-        counter
-        @click:append="showPassword = !showPassword"
-      />
-    </div>
-    <div>
-      <button type="submit">
-        登録する
-      </button>
-      <!-- <v-btn type="submit">
-        登録する
-      </v-btn> -->
+      <login-form :button-name="buttonName" />
     </div>
     <div>
       アカウントをお持ちですか？
@@ -40,7 +14,10 @@
 </template>
 
 <script>
+import LoginForm from './LoginForm'
+
 export default {
+  components: { LoginForm },
   data () {
     return {
       id: '',
@@ -49,7 +26,8 @@ export default {
       rules: {
         required: value => !!value || '8文字以上',
         min: v => v.length >= 8 || '8文字以上'
-      }
+      },
+      buttonName: '登録する'
     }
   }
 }
