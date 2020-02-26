@@ -30,6 +30,7 @@
                 v-model="item.maxScore"
                 name="max-score"
                 placeholder="20"
+                maxlength="3"
                 @input="removeLetter($event, index)"
               >
             </td>
@@ -60,7 +61,7 @@
         depressed
         color="amber darken-4"
         class="white--text"
-        :disabled="!validateSumMaxScore"
+        :disabled="!validateSumMaxScore || !validateEachMaxScore"
       >
         完了！
       </v-btn>
@@ -132,6 +133,17 @@ export default {
       } else {
         return 'green'
       }
+    },
+    /**
+     * 各maxScoreが入力されているか検証する
+     * @returns {Boolean}
+     */
+    validateEachMaxScore () {
+      for (const iterator of this.criteria) {
+        // maxScoreが数字かつ0でない時trueを返す
+        return !isNaN(iterator.maxScore) && iterator.maxScore !== 0
+      }
+      return false
     }
   },
   methods: {
