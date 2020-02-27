@@ -1,56 +1,7 @@
 <template>
   <div>
     <div>
-      <modal
-        name="tweet"
-        height="auto"
-        width="300"
-        :scrollable="true"
-      >
-        <form>
-          <div
-            style="padding: 20px;"
-          >
-            <template
-              v-for="item in criteria"
-            >
-              <div :key="item.name">
-                <v-text-field
-                  :label="item.name"
-                  name="score"
-                  placeholder="25"
-                  outlined
-                />
-                <v-text-field
-                  v-model="item.memo"
-                  label="メモ"
-                  name="memo"
-                  placeholder="おいしい"
-                  outlined
-                />
-              </div>
-            </template>
-            <v-file-input
-              accept="image/jpeg,image/png,image/webp,image/gif"
-              label="File input"
-              @change="getFileName"
-            />
-            <v-checkbox
-              v-model="tweetFlg"
-              name="tweet-flg"
-              label="ツイートする"
-            />
-
-            <v-btn
-              type="submit"
-              class="mx-2"
-              color="blue white--text"
-            >
-              記録する
-            </v-btn>
-          </div>
-        </form>
-      </modal>
+      <record />
       <v-btn
         class="mx-2"
         fab
@@ -59,47 +10,49 @@
         @click="record"
       >
         <v-icon dark>
-          mdi-plus
+          {{ mdiPencil }}
         </v-icon>
       </v-btn>
     </div>
     <div
       v-for="item in timeline"
-      :key="item"
+      :key="item.id"
       class="timeline"
     >
       <div>
-        {{ item }}
+        {{ item.tweet }}
+        <v-btn>edit</v-btn>
       </div>
     </div>
     <div class="chart">
-      chart area
+      <img
+        width="100%"
+        src="https://2.bp.blogspot.com/-2ePKnVo4ubw/VXOTvlEJxtI/AAAAAAAAuDg/-OF1k_KjePY/s800/graph10_oresen1.png"
+      >
     </div>
   </div>
 </template>
 
 <script>
-
+import Record from './Record'
+// https://qiita.com/nwtgck/items/e46b3ec16a0e79f482a5
+import { mdiPencil } from '@mdi/js'
 export default {
+  components: { Record },
   data () {
     return {
-      criteria: [],
-      timeline: [0, 1, 2],
-      tweetFlg: false
+      mdiPencil: mdiPencil,
+      timeline: [
+        {
+          id: 0,
+          tweet: '今日も牛めしがうまい'
+        },
+        {
+          id: 1,
+          tweet: '明日も牛めしがうまい'
+        }
+      ]
     }
-  },
-  mounted () {
-    const list = [
-      {
-        name: '肉',
-        memo: ''
-      },
-      {
-        name: '米',
-        memo: ''
-      }
-    ]
-    this.criteria = list
   },
   methods: {
     record () {

@@ -11,7 +11,7 @@
 </template>
 
 <script>
-
+// import firebase from '../firebase'
 import LoginForm from './LoginForm'
 export default {
   components: { LoginForm },
