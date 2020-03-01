@@ -24,6 +24,15 @@
         <v-btn>edit</v-btn>
       </div>
     </div>
+    <v-btn
+      type="button"
+      depressed
+      color="amber darken-4"
+      class="white--text"
+      @click="logout"
+    >
+      ログアウト
+    </v-btn>
     <div class="chart">
       <img
         width="100%"
@@ -37,6 +46,7 @@
 import Record from './Record'
 // https://qiita.com/nwtgck/items/e46b3ec16a0e79f482a5
 import { mdiPencil } from '@mdi/js'
+import firebase from '../firebase'
 export default {
   components: { Record },
   data () {
@@ -57,6 +67,9 @@ export default {
   methods: {
     record () {
       this.$modal.show('tweet')
+    },
+    logout () {
+      firebase.auth().signOut()
     }
   }
 }

@@ -1,62 +1,47 @@
 <template>
   <div>
-    <form>
-      <div>
-        <v-text-field
-          v-model="id"
-          :rules="[rules.required, rules.min]"
-          name="id"
-          label="ID"
-          hint="8文字以上"
-          counter
-          required
-        />
-      </div>
-      <div>
-        <v-text-field
-          v-model="password"
-          :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-          :rules="[rules.required, rules.min]"
-          :type="showPassword ? 'text' : 'password'"
-          name="password"
-          label="パスワード"
-          hint="8文字以上"
-          counter
-          required
-          @click:append="showPassword = !showPassword"
-        />
-        <div>
-          <v-btn
-            type="submit"
-            depressed
-            color="amber darken-4"
-            class="white--text"
-          >
-            {{ buttonName }}
-          </v-btn>
-        </div>
-      </div>
-    </form>
+    <v-btn
+      type="button"
+      depressed
+      color="amber darken-4"
+      class="white--text"
+      @click="login"
+    >
+      <slot />
+    </v-btn>
   </div>
 </template>
 
 <script>
+import firebase from '../firebase'
 export default {
-  props: {
-    buttonName: {
-      type: String,
-      default: ''
-    }
-  },
   data () {
     return {
-      id: '',
-      password: '',
-      showPassword: '',
-      rules: {
-        required: value => !!value || '8文字以上',
-        min: v => v.length >= 8 || '8文字以上'
-      }
+      user: null
+    }
+  },
+  methods: {
+    login () {
+      const provider = new firebase.auth.TwitterAuthProvider()
+      firebase.auth().signInWithRedirect(provider).then(function (result) {
+        // This gives you a the Twitter OAuth 1.0 Access Token and Secret.
+        // You can use these server side with your app's credentials to access the Twitter API.
+        // const token = result.credential.accessToken
+        // const secret = result.credential.secret
+        // // The signed-in user info.
+        // const user = result.user
+        // ...
+      }).catch(function (error) {
+        alert(error)
+        // Handle Errors here.
+        // const errorCode = error.code
+        // const errorMessage = error.message
+        // // The email of the user's account used.
+        // const email = error.email
+        // // The firebase.auth.AuthCredential type that was used.
+        // const credential = error.credential
+        // ...
+      })
     }
   }
 }

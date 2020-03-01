@@ -51,6 +51,7 @@
             type="submit"
             class="mx-2"
             color="blue white--text"
+            @click="submitRecord"
           >
             記録する
           </v-btn>
@@ -86,6 +87,9 @@ export default {
   methods: {
     hide () {
       this.$modal.hide('tweet')
+    },
+    submitRecord () {
+      // https://us-central1-gyumeshi-record.cloudfunctions.net/helloWorld
     }
   }
 }
