@@ -8,20 +8,26 @@
         v-show="isLoading"
         class="loader"
       />
-      <router-view :is-loading="isLoading" />
+      <router-view
+        :is-loading="isLoading"
+        @loading="updateIsLoading"
+      />
     </div>
   </v-app>
 </template>
 
 <script>
+// import firebase from './firebase'
 export default {
   data () {
     return {
       isLoading: true
     }
   },
-  mounted () {
-    this.isLoading = false
+  methods: {
+    updateIsLoading (val) {
+      this.isLoading = val
+    }
   }
 }
 </script>

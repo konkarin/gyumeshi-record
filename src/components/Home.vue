@@ -49,6 +49,9 @@ import { mdiPencil } from '@mdi/js'
 import firebase from '../firebase'
 export default {
   components: { Record },
+  props: {
+    isLoading: Boolean
+  },
   data () {
     return {
       mdiPencil: mdiPencil,
@@ -63,6 +66,9 @@ export default {
         }
       ]
     }
+  },
+  created () {
+    this.$emit('loading', false)
   },
   methods: {
     record () {

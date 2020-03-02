@@ -2,7 +2,7 @@
   <div class="welcome">
     <h2>君だけの点数を付けよう！</h2>
     <div>
-      <login-form :is-loading="isLoading">
+      <login-form>
         Twitterでログイン
       </login-form>
     </div>
@@ -22,6 +22,7 @@ export default {
     if (firebase.auth().currentUser) {
       this.$router.push('home')
     }
+    this.$emit('loading', false)
   }
 }
 </script>
