@@ -44,7 +44,7 @@
 
 <script>
 import Record from './Record'
-// https://qiita.com/nwtgck/items/e46b3ec16a0e79f482a5
+// mdiPencil https://qiita.com/nwtgck/items/e46b3ec16a0e79f482a5
 import { mdiPencil } from '@mdi/js'
 import firebase from '../firebase'
 export default {
