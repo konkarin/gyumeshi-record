@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <record />
+      <record :user="user" />
       <v-btn
         class="mx-2"
         fab
@@ -54,6 +54,7 @@ export default {
   },
   data () {
     return {
+      user: null,
       mdiPencil: mdiPencil,
       timeline: [
         {
@@ -69,6 +70,7 @@ export default {
   },
   created () {
     this.$emit('loading', false)
+    this.user = firebase.auth().currentUser
   },
   methods: {
     record () {
