@@ -21,19 +21,19 @@ exports.record = functions.https.onCall((data, context) => {
     .add({
       date: admin.firestore.FieldValue.serverTimestamp(),
       memo: data.memo,
+      // FIXME: incrementされない
       recordId: admin.firestore.FieldValue.increment(1),
       scores: data.scores,
       uid: context.auth.uid
     })
     .then(() => {
       console.log('Done')
-      return '記録しました。'
     })
-    .catch(() => {
-      console.log('Error')
-      return 'エラー！'
+    .catch((e) => {
+      console.log(e)
+      return e
     })
-  return '完了'
+  return '記録しました。'
 })
 
 // exports.record = functions.https.onRequest((request, response) => {
