@@ -1,7 +1,7 @@
 <template>
   <div>
     <modal
-      name="tweet"
+      name="record"
       height="auto"
       width="300"
       :scrollable="true"
@@ -80,18 +80,44 @@ export default {
     }
   },
   computed: {
+    /**
+     * 記録するボタンの活性非活性
+     * @returns {Boolean}
+     */
     isDisabled () {
-      return !this.validSumScore
+      return !(this.validSumScore && this.validScore && this.compareCriteriaWithScore)
     },
+    /**
+     * criteria.maxScoreを超えていないか検証
+     * @returns {Boolean}
+     */
+    compareCriteriaWithScore () {
+      if (this.criteria.length !== 0 && this.scores.length !== 0) {
+        return this.scores.every((element, index) => this.criteria[index].maxScore > parseInt(element))
+      }
+      return false
+    },
+    /**
+     * scoreの値を検証
+     * @returns {Boolean}
+     */
+    validScore () {
+      return this.scores.every(element => parseInt(element) >= 0)
+    },
+    /**
+     * 合計値を検証
+     * @returns {Boolean}
+     */
     validSumScore () {
       // scoresが初期値の場合、評価しない
       if (this.scores.length === 0) {
         return false
+        // 合計が100を超えている場合false
       } else {
         const sum = this.scores.reduce((accumlator, currentVal) => {
           return parseInt(accumlator) + parseInt(currentVal)
         })
-        return sum <= 100
+        return sum <= 100 && sum >= 0
       }
     }
   },
@@ -109,28 +135,26 @@ export default {
     }
   },
   methods: {
+    // モーダルを隠す
     hide () {
-      this.$modal.hide('tweet')
+      this.$modal.hide('record')
     },
+    // 点数を記録する
     async submitRecord () {
       const data = {
         memo: this.memo,
         scores: this.scores.map(score => parseInt(score))
       }
-      const func = firebase.functions().httpsCallable('record')
-      // 引数を付けて呼び出し
-      func(data).then(res => {
-        console.log(res)
-      }).catch(e => {
+      const record = firebase.functions().httpsCallable('record')
+      try {
+        const result = await record(data)
+        console.log(result)
+        alert(result)
+        // this.$modal.hide('record')
+      } catch (e) {
         console.log(e)
-      })
-      // const record = firebase.functions().httpsCallable('record')
-      // try {
-      //   const result = await record(data)
-      //   alert(result)
-      // } catch (e) {
-      //   alert(e)
-      // }
+        alert(e)
+      }
     }
   }
 }
