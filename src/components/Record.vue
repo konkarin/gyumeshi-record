@@ -6,6 +6,7 @@
       width="300"
       :scrollable="true"
     >
+      {{ criteriaList }}
       <div @click="hide">
         ×
       </div>
@@ -13,14 +14,14 @@
         style="padding: 20px;"
       >
         <template
-          v-for="(item, index) in criteria"
+          v-for="(item, index) in criteriaList"
         >
           <div :key="index">
             <v-text-field
               v-model="scores[index]"
-              :label="criteria[index].name"
+              :label="criteriaList[index].name"
               name="score"
-              :placeholder="String(criteria[index].maxScore)"
+              :placeholder="String(criteriaList[index].maxScore)"
               outlined
             />
           </div>
@@ -68,12 +69,15 @@ export default {
     user: {
       type: Object,
       default: () => ({})
+    },
+    criteriaList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
       scores: [],
-      criteria: [],
       memo: '',
       rules: [v => v.length <= 140 || '140字までです'],
       tweetFlg: false
@@ -92,8 +96,8 @@ export default {
      * @returns {Boolean}
      */
     compareCriteriaWithScore () {
-      if (this.criteria.length !== 0 && this.scores.length !== 0) {
-        return this.scores.every((element, index) => this.criteria[index].maxScore > parseInt(element))
+      if (this.criteriaList.length !== 0 && this.scores.length !== 0) {
+        return this.scores.every((element, index) => this.criteriaList[index].maxScore > parseInt(element))
       }
       return false
     },
@@ -121,17 +125,13 @@ export default {
       }
     }
   },
-  async mounted () {
-    // userごとのcriteriaの取得
-    const snapshot = await firebase.firestore().collection('users')
-      .where('uid', '==', this.user.uid).get()
-    snapshot.forEach(doc => {
-      this.criteria = doc.data().criteria
-    })
-    // criteriaの長さに応じたscoresを生成
-    const length = Object.keys(this.criteria).length
-    for (let i = 0; i < length; i++) {
-      this.scores.push('')
+  watch: {
+    // HACK: createdとmountedだとダメだったからとりあえずwatch
+    criteriaList (newCriteriaList) {
+      const length = Object.keys(newCriteriaList).length
+      for (let i = 0; i < length; i++) {
+        this.scores.push('')
+      }
     }
   },
   methods: {

@@ -8,9 +8,13 @@ exports.record = functions.https.onCall((data, context) => {
   // Checking that the user is authenticated.
   if (!context.auth) {
     // Throwing an HttpsError so that the client gets the error details.
-    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
-        'while authenticated.')
+    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
   }
+  data.scores.forEach(score => {
+    if (typeof score !== 'number') {
+      throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+    }
+  })
   // if (!data.scores) {
   //   // Throwing an HttpsError so that the client gets the error details.
   //   throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' +
@@ -21,8 +25,6 @@ exports.record = functions.https.onCall((data, context) => {
     .add({
       date: admin.firestore.FieldValue.serverTimestamp(),
       memo: data.memo,
-      // FIXME: incrementされない
-      recordId: admin.firestore.FieldValue.increment(1),
       scores: data.scores,
       uid: context.auth.uid
     })
