@@ -17,25 +17,35 @@
         </v-icon>
       </v-btn>
     </div>
-    <div
+    <v-card
       v-for="item in recordList"
-      :key="item.date.seconds"
+      :key="item.id"
       class="timeline"
+      style="margin: 30px 10px;"
     >
-      <div>
+      <div style="padding: 10px 10px;">
+        <div>
+          {{ new Date(item.data.date.seconds * 1000).toLocaleString() }}
+        </div>
         <div
           v-for="(criteria, index) in criteriaList"
           :key="index"
         >
-          {{ item.scores[index] }} / {{ criteria.maxScore }}点
+          {{ item.data.scores[index] }} / {{ criteria.maxScore }}点
+        </div>
+        <div>
+          {{ item.data.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur)) }}点
         </div>
         <div>
           {{ item.memo }}
-          {{ new Date(item.date.seconds * 1000) }}
         </div>
-        <v-btn>edit</v-btn>
+        <div style="display: flex">
+          <v-btn style="margin-left: auto;">
+            edit
+          </v-btn>
+        </div>
       </div>
-    </div>
+    </v-card>
     <v-btn
       type="button"
       depressed
@@ -79,7 +89,12 @@ export default {
     firebase.firestore().collection('records')
       .where('uid', '==', this.user.uid).get().then(snapshot => {
         snapshot.forEach(doc => {
-          this.recordList.push(doc.data())
+          this.recordList.push(
+            {
+              data: doc.data(),
+              id: doc.id
+            }
+          )
         })
       })
     // userごとのcriteriaを取得

@@ -31,27 +31,26 @@ exports.record = functions.https.onCall((data, context) => {
     .then(() => {
       console.log('Done')
     })
-    .catch((e) => {
-      console.log(e)
-      return e
+    .catch(error => {
+      console.log(error)
+      return error
     })
   return '記録しました。'
 })
 
-// exports.record = functions.https.onRequest((request, response) => {
-//   const recordRef = firestore.collection('records')
-//   const data = {
-//     recordId: firestore.FieldValue.increment(1),
-//     scores: request.scores,
-//     date: request.date,
-//     memo: request.memo
-//   }
-//   recordRef.collection('records').add({
-//     data
-//   }).then(() => {
-//     console.log('Done')
-//     response.status(200).send('記録しました。')
-//   }).catch(() => {
-//     response.send('エラー！')
-//   })
-// })
+exports.updateRecord = functions.https.onCall((data, context) => {
+  if (!context.auth) {
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+  }
+  // data.scores.forEach(score => {
+  //   if (typeof score !== 'number') {
+  //     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+  //   }
+  // })
+  db.collection('records').doc(data.id).update({
+    // data: data.data
+  })
+    .then(() => console.log('Done'))
+    .catch(error => console.log(error))
+})
