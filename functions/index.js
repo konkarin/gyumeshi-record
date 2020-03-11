@@ -32,25 +32,37 @@ exports.record = functions.https.onCall((data, context) => {
       console.log('Done')
     })
     .catch(error => {
-      console.log(error)
+      console.erorr(error)
       return error
     })
   return '記録しました。'
 })
 
-exports.updateRecord = functions.https.onCall((data, context) => {
+// exports.updateRecord = functions.https.onCall((data, context) => {
+//   if (!context.auth) {
+//     // Throwing an HttpsError so that the client gets the error details.
+//     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+//   }
+//   // data.scores.forEach(score => {
+//   //   if (typeof score !== 'number') {
+//   //     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+//   //   }
+//   // })
+//   db.collection('records').doc(data.id).update({
+//     // data: data.data
+//   })
+//     .then(() => console.log('Updated'))
+//     .catch(error => console.erorr(error))
+// })
+
+exports.deleteRecord = functions.https.onCall((data, context) => {
   if (!context.auth) {
     // Throwing an HttpsError so that the client gets the error details.
     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
   }
-  // data.scores.forEach(score => {
-  //   if (typeof score !== 'number') {
-  //     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
-  //   }
-  // })
-  db.collection('records').doc(data.id).update({
+  db.collection('records').doc(data.id).delete({
     // data: data.data
   })
-    .then(() => console.log('Done'))
-    .catch(error => console.log(error))
+    .then(() => console.log('Deleted'))
+    .catch(error => console.erorr(error))
 })

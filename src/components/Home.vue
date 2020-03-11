@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div style="padding: 10px 0;">
       <record
         :user="user"
         :criteria-list="criteriaList"
@@ -16,14 +16,27 @@
           {{ mdiPencil }}
         </v-icon>
       </v-btn>
+      <img :src="iconUrl">
+      <v-btn
+        type="button"
+        depressed
+        color="amber darken-4"
+        class="white--text"
+        @click="logout"
+      >
+        ログアウト
+      </v-btn>
     </div>
-    <v-card
+    <div
       v-for="item in recordList"
       :key="item.id"
-      class="timeline"
-      style="margin: 30px 10px;"
+      style="
+      padding: 10px 10px;
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: rgb(56, 68, 77);"
     >
-      <div style="padding: 10px 10px;">
+      <div style="padding: 0px 10px;">
         <div>
           {{ new Date(item.data.date.seconds * 1000).toLocaleString() }}
         </div>
@@ -31,30 +44,24 @@
           v-for="(criteria, index) in criteriaList"
           :key="index"
         >
-          {{ item.data.scores[index] }} / {{ criteria.maxScore }}点
+          {{ criteria.name }}：{{ item.data.scores[index] }} / {{ criteria.maxScore }}点
         </div>
         <div>
-          {{ item.data.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur)) }}点
+          計：{{ item.data.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur)) }}点
         </div>
         <div>
-          {{ item.memo }}
+          {{ item.data.memo }}
         </div>
-        <div style="display: flex">
-          <v-btn style="margin-left: auto;">
-            edit
+        <span style="display: flex">
+          <v-btn
+            style="margin-left: auto;"
+            @click="deleteRecord(item.id)"
+          >
+            delete
           </v-btn>
-        </div>
+        </span>
       </div>
-    </v-card>
-    <v-btn
-      type="button"
-      depressed
-      color="amber darken-4"
-      class="white--text"
-      @click="logout"
-    >
-      ログアウト
-    </v-btn>
+    </div>
     <div class="chart">
       <img
         width="100%"
@@ -79,21 +86,20 @@ export default {
       user: null,
       mdiPencil: mdiPencil,
       recordList: [],
-      criteriaList: []
+      criteriaList: [],
+      iconUrl: ''
     }
   },
   async created () {
     this.$emit('loading', false)
     this.user = await firebase.auth().currentUser
+    this.iconUrl = this.user.photoURL
     // 記録の取得
     firebase.firestore().collection('records')
       .where('uid', '==', this.user.uid).get().then(snapshot => {
         snapshot.forEach(doc => {
           this.recordList.push(
-            {
-              data: doc.data(),
-              id: doc.id
-            }
+            { data: doc.data(), id: doc.id }
           )
         })
       })
@@ -111,6 +117,18 @@ export default {
     },
     logout () {
       firebase.auth().signOut()
+    },
+    async deleteRecord (id) {
+      const del = firebase.functions().httpsCallable('deleteRecord')
+      try {
+        const result = await del(id)
+        console.log(result)
+        alert(result)
+        // this.$modal.hide('record')
+      } catch (e) {
+        console.log(e)
+        alert(e)
+      }
     }
   }
 }
