@@ -3,7 +3,8 @@
     <h1>
       Gyumeshi Record
     </h1>
-    <div class="container">
+    <!-- <div class="container"> -->
+    <div>
       <div
         v-show="isLoading"
         class="loader"

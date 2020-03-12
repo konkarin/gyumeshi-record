@@ -4,6 +4,27 @@ admin.initializeApp()
 
 const db = admin.firestore()
 
+exports.create = functions.https.onCall((data, context) => {
+  // Checking that the user is authenticated.
+  if (!context.auth) {
+    // Throwing an HttpsError so that the client gets the error details.
+    throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
+  }
+
+  db.collection('users').add({
+    criteria: data.criteria,
+    name: data.name,
+    uid: data.uid
+  }).then(() => {
+    console.log('Created')
+  })
+    .catch(error => {
+      console.erorr(error)
+      return error
+    })
+  return '作成しました'
+})
+
 exports.record = functions.https.onCall((data, context) => {
   // Checking that the user is authenticated.
   if (!context.auth) {

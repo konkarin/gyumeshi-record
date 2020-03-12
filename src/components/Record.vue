@@ -6,7 +6,6 @@
       width="300"
       :scrollable="true"
     >
-      {{ criteriaList }}
       <div @click="hide">
         ×
       </div>

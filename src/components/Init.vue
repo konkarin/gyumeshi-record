@@ -7,7 +7,6 @@
             <th>No</th>
             <th>項目</th>
             <th>点数</th>
-            <th>備考</th>
           </tr>
         </thead>
         <tbody>
@@ -34,14 +33,6 @@
                 @input="removeLetter($event, index)"
               >
             </td>
-            <td>
-              <input
-                type="text"
-                name="memo"
-                :value="item.memo"
-                placeholder="メモ"
-              >
-            </td>
           </tr>
         </tbody>
       </table>
@@ -62,6 +53,7 @@
         color="amber darken-4"
         class="white--text"
         :disabled="!validateSumMaxScore || !validateEachMaxScore"
+        @click="createCriteria"
       >
         完了！
       </v-btn>
@@ -70,25 +62,27 @@
 </template>
 
 <script>
+import firebase from '../firebase'
 export default {
+  props: {
+    isLoading: Boolean
+  },
   data () {
     return {
+      user: null,
       color: '',
       criteria: [
         {
           name: '肉',
-          maxScore: 50,
-          memo: ''
+          maxScore: 50
         },
         {
           name: '味噌汁',
-          maxScore: 25,
-          memo: ''
+          maxScore: 25
         },
         {
           name: '米',
-          maxScore: 25,
-          memo: ''
+          maxScore: 25
         }
       ]
     }
@@ -146,6 +140,12 @@ export default {
       return false
     }
   },
+  async created () {
+    this.user = await firebase.auth().currentUser
+  },
+  mounted () {
+    this.$emit('loading', false)
+  },
   methods: {
     /**
      * 数字以外を除去する
@@ -161,8 +161,7 @@ export default {
     addItem () {
       const obj = {
         name: '',
-        maxScore: 0,
-        memo: ''
+        maxScore: 0
       }
       this.criteria.push(obj)
     },
@@ -171,6 +170,33 @@ export default {
      */
     removeItem () {
       this.criteria.pop()
+    },
+    async createCriteria () {
+      const data = {
+        criteria: this.criteria,
+        name: this.user.displayName,
+        uid: this.user.uid
+      }
+      // const create = firebase.functions().httpsCallable('create')
+      // try {
+      //   const result = await create(data)
+      //   console.log(result)
+      //   this.$router.push('home')
+      // } catch (e) {
+      //   console.log(e)
+      //   alert(e)
+      // }
+      const db = firebase.firestore().collection('users')
+      db.add({
+        criteria: data.criteria,
+        name: data.name,
+        uid: data.uid
+      }).then(() => {
+        console.log('Created')
+        this.$router.push('home')
+      }).catch(error => {
+        console.log(error)
+      })
     }
   }
 }

@@ -5,17 +5,6 @@
         :user="user"
         :criteria-list="criteriaList"
       />
-      <v-btn
-        class="mx-2"
-        fab
-        dark
-        color="blue"
-        @click="record"
-      >
-        <v-icon dark>
-          {{ mdiPencil }}
-        </v-icon>
-      </v-btn>
       <img :src="iconUrl">
       <v-btn
         type="button"
@@ -27,47 +16,64 @@
         ログアウト
       </v-btn>
     </div>
-    <div
-      v-for="item in recordList"
-      :key="item.id"
-      style="
-      padding: 10px 10px;
+    <template v-if="criteriaList.length > 0">
+      <v-btn
+        class="mx-2"
+        fab
+        dark
+        color="blue"
+        @click="record"
+      >
+        <v-icon dark>
+          {{ mdiPencil }}
+        </v-icon>
+      </v-btn>
+      <div
+        v-for="item in recordList"
+        :key="item.id"
+        style="
+      padding: 10px 0;
       border-bottom-style: solid;
       border-bottom-width: 1px;
       border-bottom-color: rgb(56, 68, 77);"
-    >
-      <div style="padding: 0px 10px;">
-        <div>
-          {{ new Date(item.data.date.seconds * 1000).toLocaleString() }}
-        </div>
-        <div
-          v-for="(criteria, index) in criteriaList"
-          :key="index"
-        >
-          {{ criteria.name }}：{{ item.data.scores[index] }} / {{ criteria.maxScore }}点
-        </div>
-        <div>
-          計：{{ item.data.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur)) }}点
-        </div>
-        <div>
-          {{ item.data.memo }}
-        </div>
-        <span style="display: flex">
-          <v-btn
-            style="margin-left: auto;"
-            @click="deleteRecord(item.id)"
-          >
-            delete
-          </v-btn>
-        </span>
-      </div>
-    </div>
-    <div class="chart">
-      <img
-        width="100%"
-        src="https://2.bp.blogspot.com/-2ePKnVo4ubw/VXOTvlEJxtI/AAAAAAAAuDg/-OF1k_KjePY/s800/graph10_oresen1.png"
       >
-    </div>
+        <div style="padding: 0px 10px;">
+          <div>
+            {{ new Date(item.data.date.seconds * 1000).toLocaleString() }}
+          </div>
+          <div
+            v-for="(criteria, index) in criteriaList"
+            :key="index"
+          >
+            {{ criteria.name }}：{{ item.data.scores[index] }} / {{ criteria.maxScore }}点
+          </div>
+          <div>
+            計：{{ item.data.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur)) }}点
+          </div>
+          <div>
+            {{ item.data.memo }}
+          </div>
+          <span style="display: flex">
+            <v-btn
+              style="margin-left: auto;"
+              @click="deleteRecord(item.id)"
+            >
+              delete
+            </v-btn>
+          </span>
+        </div>
+      </div>
+
+      <div class="chart">
+        <img
+          width="100%"
+          src="https://2.bp.blogspot.com/-2ePKnVo4ubw/VXOTvlEJxtI/AAAAAAAAuDg/-OF1k_KjePY/s800/graph10_oresen1.png"
+        >
+      </div>
+    </template>
+    <template v-else>
+      <a href="/init">さきに採点基準を作ろう！</a>
+    </template>
   </div>
 </template>
 
@@ -91,7 +97,6 @@ export default {
     }
   },
   async created () {
-    this.$emit('loading', false)
     this.user = await firebase.auth().currentUser
     this.iconUrl = this.user.photoURL
     // 記録の取得
@@ -110,6 +115,9 @@ export default {
       // TODO: criteriaListに統一
       this.criteriaList = doc.data().criteria
     })
+  },
+  mounted () {
+    this.$emit('loading', false)
   },
   methods: {
     record () {
