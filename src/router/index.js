@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Welcome from '../components/Welcome'
-import Init from '../components/Init'
+// import Init from '../components/Init'
 import Home from '../components/Home'
 import firebase from '../firebase'
 
@@ -26,12 +26,12 @@ const routes = [
   // which is lazy-loaded when the route is visited.
   // component: () => import(/* webpackChunkName: "login" */ '../components/Login')
   // },
-  {
-    path: '/init',
-    name: 'Init',
-    component: Init,
-    meta: { requiresAuth: true }
-  },
+  // {
+  //   path: '/init',
+  //   name: 'Init',
+  //   component: Init,
+  //   meta: { requiresAuth: true }
+  // },
   {
     path: '/home',
     name: 'Home',

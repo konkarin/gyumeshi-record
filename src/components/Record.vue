@@ -13,7 +13,7 @@
         style="padding: 20px;"
       >
         <template
-          v-for="(item, index) in criteriaList"
+          v-for="(criteria, index) in criteriaList"
         >
           <div :key="index">
             <v-text-field
@@ -22,6 +22,7 @@
               name="score"
               :placeholder="String(criteriaList[index].maxScore)"
               outlined
+              autocomplete="off"
             />
           </div>
         </template>
@@ -41,11 +42,6 @@
             accept="image/jpeg,image/png,image/webp,image/gif"
           >
         </label>
-        <v-checkbox
-          v-model="tweetFlg"
-          name="tweet-flg"
-          label="ツイートする"
-        />
         <v-btn
           type="button"
           class="mx-2"
@@ -78,8 +74,7 @@ export default {
     return {
       scores: [],
       memo: '',
-      rules: [v => v.length <= 140 || '140字までです'],
-      tweetFlg: false
+      rules: [v => v.length <= 140 || '140字までです']
     }
   },
   computed: {
@@ -148,8 +143,9 @@ export default {
       try {
         const result = await record(data)
         console.log(result)
-        alert(result)
-        // this.$modal.hide('record')
+        this.$modal.hide('record')
+        this.$emit('complete', '完了')
+        this.$modal.show('complete')
       } catch (e) {
         console.log(e)
         alert(e)

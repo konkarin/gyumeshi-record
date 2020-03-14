@@ -15,14 +15,12 @@ exports.create = functions.https.onCall((data, context) => {
     criteria: data.criteria,
     name: data.name,
     uid: data.uid
-  }).then(() => {
-    console.log('Created')
   })
-    .catch(error => {
-      console.erorr(error)
-      return error
+    .then(() => {
+      console.log('Created')
+      return '作成しました'
     })
-  return '作成しました'
+    .catch(error => console.erorr(error))
 })
 
 exports.record = functions.https.onCall((data, context) => {
@@ -49,41 +47,18 @@ exports.record = functions.https.onCall((data, context) => {
       scores: data.scores,
       uid: context.auth.uid
     })
-    .then(() => {
-      console.log('Done')
-    })
-    .catch(error => {
-      console.erorr(error)
-      return error
-    })
+    .then(() => console.log('Done'))
+    .catch(error => console.erorr(error))
   return '記録しました。'
 })
-
-// exports.updateRecord = functions.https.onCall((data, context) => {
-//   if (!context.auth) {
-//     // Throwing an HttpsError so that the client gets the error details.
-//     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
-//   }
-//   // data.scores.forEach(score => {
-//   //   if (typeof score !== 'number') {
-//   //     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
-//   //   }
-//   // })
-//   db.collection('records').doc(data.id).update({
-//     // data: data.data
-//   })
-//     .then(() => console.log('Updated'))
-//     .catch(error => console.erorr(error))
-// })
 
 exports.deleteRecord = functions.https.onCall((data, context) => {
   if (!context.auth) {
     // Throwing an HttpsError so that the client gets the error details.
     throw new functions.https.HttpsError('failed-precondition', 'The function must be called ' + 'while authenticated.')
   }
-  db.collection('records').doc(data.id).delete({
-    // data: data.data
-  })
+  console.log(data)
+  db.collection('records').doc(data).delete()
     .then(() => console.log('Deleted'))
     .catch(error => console.erorr(error))
 })

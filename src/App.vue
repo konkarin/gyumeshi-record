@@ -1,10 +1,15 @@
 <template>
   <v-app>
-    <h1>
+    <h1
+      style="
+      border-bottom-style:      solid;
+      border-bottom-width:      1px;
+      border-bottom-color:      rgb(56,      68,      77);"
+    >
       Gyumeshi Record
     </h1>
-    <!-- <div class="container"> -->
     <div>
+      <!-- TODO: 不透明オーバーレイつける -->
       <div
         v-show="isLoading"
         class="loader"

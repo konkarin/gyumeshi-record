@@ -12,17 +12,19 @@
 <script>
 import LoginForm from './LoginForm'
 import firebase from '../firebase'
+
 export default {
   components: { LoginForm },
   props: {
     isLoading: Boolean
   },
-  created () {
+  beforeCreate () {
     // ログインユーザーがいる場合はhomeへ遷移
     if (firebase.auth().currentUser) {
       this.$router.push('home')
+    } else {
+      this.$emit('loading', false)
     }
-    this.$emit('loading', false)
   }
 }
 </script>

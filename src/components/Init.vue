@@ -12,26 +12,29 @@
         <tbody>
           <!-- TODO:後でindex直す -->
           <tr
-            v-for="(item, index) in criteria"
+            v-for="(criteria, index) in inputCriteriaList"
             :key="index"
           >
             <td>{{ index + 1 }}</td>
             <td>
-              <input
-                type="text"
+              <v-text-field
+                v-model="criteria.name"
                 name="name"
-                :value="item.name"
                 placeholder="肉"
-              >
+                outlined
+                autocomplete="off"
+              />
             </td>
             <td>
-              <input
-                v-model="item.maxScore"
+              <v-text-field
+                v-model="criteria.maxScore"
                 name="max-score"
                 placeholder="20"
                 maxlength="3"
+                outlined
+                autocomplete="off"
                 @input="removeLetter($event, index)"
-              >
+              />
             </td>
           </tr>
         </tbody>
@@ -63,15 +66,20 @@
 
 <script>
 import firebase from '../firebase'
+
 export default {
   props: {
-    isLoading: Boolean
+    isLoading: Boolean,
+    criteriaList: {
+      type: Array,
+      default: () => []
+    }
   },
   data () {
     return {
       user: null,
       color: '',
-      criteria: [
+      inputCriteriaList: [
         {
           name: '肉',
           maxScore: 50
@@ -94,10 +102,10 @@ export default {
      */
     calcSumMaxScore () {
       let sum = 0
-      for (const item of this.criteria) {
+      for (const criteria of this.inputCriteriaList) {
         // parseIntしてNaNの値は計算に含めない
-        if (!isNaN(parseInt(item.maxScore))) {
-          sum += parseInt(item.maxScore)
+        if (!isNaN(parseInt(criteria.maxScore))) {
+          sum += parseInt(criteria.maxScore)
         }
       }
       return sum
@@ -133,27 +141,25 @@ export default {
      * @returns {Boolean}
      */
     validateEachMaxScore () {
-      for (const iterator of this.criteria) {
+      for (const criteria of this.inputCriteriaList) {
         // maxScoreが数字かつ0でない時trueを返す
-        return !isNaN(iterator.maxScore) && iterator.maxScore !== 0
+        return !isNaN(criteria.maxScore) && criteria.maxScore !== 0
       }
       return false
     }
   },
   async created () {
     this.user = await firebase.auth().currentUser
-  },
-  mounted () {
     this.$emit('loading', false)
   },
   methods: {
     /**
      * 数字以外を除去する
-     * @param {Object} e イベント
-     * @param {Number} index 配列インデックス
+     * @param {Object} e
+     * @param {Number} index
      */
     removeLetter (e, index) {
-      this.criteria[index].maxScore = e.target.value.replace(/\D/g, '')
+      this.inputCriteriaList[index].maxScore = e.target.value.replace(/\D/g, '')
     },
     /**
      * criteriaに要素を追加する
@@ -163,40 +169,26 @@ export default {
         name: '',
         maxScore: 0
       }
-      this.criteria.push(obj)
+      this.inputCriteriaList.push(obj)
     },
     /**
      * criteriaから要素を除去する
      */
     removeItem () {
-      this.criteria.pop()
+      this.inputCriteriaList.pop()
     },
     async createCriteria () {
-      const data = {
-        criteria: this.criteria,
-        name: this.user.displayName,
-        uid: this.user.uid
-      }
-      // const create = firebase.functions().httpsCallable('create')
-      // try {
-      //   const result = await create(data)
-      //   console.log(result)
-      //   this.$router.push('home')
-      // } catch (e) {
-      //   console.log(e)
-      //   alert(e)
-      // }
       const db = firebase.firestore().collection('users')
-      db.add({
-        criteria: data.criteria,
-        name: data.name,
-        uid: data.uid
-      }).then(() => {
-        console.log('Created')
-        this.$router.push('home')
-      }).catch(error => {
-        console.log(error)
-      })
+      try {
+        await db.add({
+          criteriaList: this.inputCriteriaList,
+          name: this.user.displayName,
+          uid: this.user.uid
+        })
+        this.$emit('update-criteria', this.inputCriteriaList)
+      } catch (error) {
+        console.error(error)
+      }
     }
   }
 }
