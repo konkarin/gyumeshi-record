@@ -34,7 +34,6 @@ export default {
   methods: {
     updateRecordList () {
       this.$emit('update-record', true)
-      console.log('update record')
     }
   }
 }

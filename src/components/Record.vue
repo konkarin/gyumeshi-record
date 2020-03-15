@@ -47,7 +47,7 @@
           class="mx-2"
           color="blue white--text"
           :disabled="isDisabled"
-          @click="submitRecord"
+          @click="record"
         >
           記録する
         </v-btn>
@@ -138,7 +138,7 @@ export default {
     /**
      * 点数を記録する
      */
-    async submitRecord () {
+    async record () {
       const data = {
         memo: this.memo,
         scores: this.scores.map(score => parseInt(score)),

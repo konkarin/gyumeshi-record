@@ -173,34 +173,39 @@ export default {
      */
     async getRecordList () {
       this.$emit('loading', true)
-      const result = []
       try {
         const recordsSnapshot = await firebase.firestore().collection('users')
           .doc(this.user.uid).collection('records').get()
-          // TODO: mapにする
-        recordsSnapshot.forEach(doc => {
-          result.push(
-            { data: doc.data(), id: doc.id }
-          )
+        const result = recordsSnapshot.docs.map(doc => {
+          return { data: doc.data(), id: doc.id }
         })
+        return result
       } catch (error) {
         console.error(error)
       }
-      return result
     },
     /**
      * criteriaListを取得する
      * @returns {Array}
      */
     async getCriteriaList () {
-      let result = []
-      const usersSnapshot = await firebase.firestore().collection('users')
-        .where('uid', '==', this.user.uid).get()
-      // TODO: mapにする
-      usersSnapshot.forEach(doc => {
-        result = doc.data().criteriaList
-      })
-      return result
+      // TODO: 並び順も考慮する
+      const result = []
+      try {
+        const usersSnapshot = await firebase.firestore().collection('users')
+          .where('uid', '==', this.user.uid).get()
+        usersSnapshot.forEach(doc => {
+          result.push(doc.data().criteriaList)
+        })
+        return result
+      // TODO: どっちがいい？？？？？
+      // const result1 = usersSnapshot.docs.map(doc => {
+      //   return doc.data().criteriaList
+      // })
+      // return result.pop() // or result.shift()
+      } catch (error) {
+        console.error(error)
+      }
     },
     /**
      * completeモーダルクローズ時にrecordを更新する
