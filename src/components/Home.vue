@@ -5,8 +5,9 @@
       <record
         :user="user"
         :criteria-list="criteriaList"
-        @complete="updateCompleteMessage"
+        @complete="setCompleteMessage"
       />
+      <!-- modal -->
       <complete
         :complete-message="completeMessage"
         @update-record="updateRecordList"
@@ -35,7 +36,7 @@
         fab
         dark
         color="blue"
-        @click="record"
+        @click="showRecord"
       >
         <v-icon dark>
           {{ mdiPencil }}
@@ -122,57 +123,90 @@ export default {
     this.user = await firebase.auth().currentUser
     this.iconUrl = this.user.photoURL
     // recordの取得
-    const recordsSnapshot = await firebase.firestore().collection('records')
-      .where('uid', '==', this.user.uid).get()
-    recordsSnapshot.forEach(doc => {
-      this.recordList.push(
-        { data: doc.data(), id: doc.id }
-      )
-    })
-    // userごとのcriteriaListを取得
-    const usersSnapshot = await firebase.firestore().collection('users')
-      .where('uid', '==', this.user.uid).get()
-    usersSnapshot.forEach(doc => {
-      this.criteriaList = doc.data().criteriaList
-    })
+    this.recordList = await this.getRecordList()
+    // userのcriteriaListを取得
+    this.criteriaList = await this.getCriteriaList()
     this.$emit('loading', false)
   },
   methods: {
-    record () {
+    /**
+     * モーダル表示
+     */
+    showRecord () {
       this.$modal.show('record')
     },
+    /**
+     * ログアウトする
+     */
     logout () {
       firebase.auth().signOut()
     },
+    /**
+     * firestoreから記録を削除する
+     */
     async deleteRecord (id) {
       const del = firebase.functions().httpsCallable('deleteRecord')
       try {
         await del(id)
-        this.updateCompleteMessage('削除完了！')
+        this.setCompleteMessage('削除完了！')
         this.$modal.show('complete')
       } catch (e) {
-        console.log(e)
+        console.error(e)
         alert(e)
       }
     },
+    /**
+     * Init後にcriteriaLsitを更新する
+     */
     updateCriteriaList (val) {
       this.criteriaList = val
     },
-    updateCompleteMessage (val) {
+    /**
+     * 完了時のメッセージをセット
+     */
+    setCompleteMessage (val) {
       this.completeMessage = val
     },
-    async updateRecordList () {
+    /**
+     * recordListを取得する
+     * @returns {Array}
+     */
+    async getRecordList () {
       this.$emit('loading', true)
       const result = []
-      console.log('update')
-      const recordsSnapshot = await firebase.firestore().collection('records')
+      try {
+        const recordsSnapshot = await firebase.firestore().collection('users')
+          .doc(this.user.uid).collection('records').get()
+          // TODO: mapにする
+        recordsSnapshot.forEach(doc => {
+          result.push(
+            { data: doc.data(), id: doc.id }
+          )
+        })
+      } catch (error) {
+        console.error(error)
+      }
+      return result
+    },
+    /**
+     * criteriaListを取得する
+     * @returns {Array}
+     */
+    async getCriteriaList () {
+      let result = []
+      const usersSnapshot = await firebase.firestore().collection('users')
         .where('uid', '==', this.user.uid).get()
-      recordsSnapshot.forEach(doc => {
-        result.push(
-          { data: doc.data(), id: doc.id }
-        )
+      // TODO: mapにする
+      usersSnapshot.forEach(doc => {
+        result = doc.data().criteriaList
       })
-      this.recordList = result
+      return result
+    },
+    /**
+     * completeモーダルクローズ時にrecordを更新する
+     */
+    async updateRecordList () {
+      this.recordList = await this.getRecordList()
       this.$emit('loading', false)
     }
   }

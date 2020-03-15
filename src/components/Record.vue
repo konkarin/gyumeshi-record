@@ -18,9 +18,9 @@
           <div :key="index">
             <v-text-field
               v-model="scores[index]"
-              :label="criteriaList[index].name"
+              :label="criteria.name"
               name="score"
-              :placeholder="String(criteriaList[index].maxScore)"
+              :placeholder="String(criteria.maxScore)"
               outlined
               autocomplete="off"
             />
@@ -129,25 +129,31 @@ export default {
     }
   },
   methods: {
-    // モーダルを隠す
+    /**
+     * モーダルを隠す
+     */
     hide () {
       this.$modal.hide('record')
     },
-    // 点数を記録する
+    /**
+     * 点数を記録する
+     */
     async submitRecord () {
       const data = {
         memo: this.memo,
-        scores: this.scores.map(score => parseInt(score))
+        scores: this.scores.map(score => parseInt(score)),
+        date: new Date()
       }
-      const record = firebase.functions().httpsCallable('record')
+      const db = firebase.firestore()
       try {
-        const result = await record(data)
-        console.log(result)
+        await db.collection('users').doc(this.user.uid)
+          .collection('records').add(data)
         this.$modal.hide('record')
         this.$emit('complete', '完了')
         this.$modal.show('complete')
       } catch (e) {
-        console.log(e)
+        console.error(e)
+        // TODO: debug用後で消す
         alert(e)
       }
     }

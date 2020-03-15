@@ -177,14 +177,18 @@ export default {
     removeItem () {
       this.inputCriteriaList.pop()
     },
+    /**
+     * 採点基準を作成する
+     */
     async createCriteria () {
-      const db = firebase.firestore().collection('users')
+      const db = firebase.firestore()
       try {
-        await db.add({
+        await db.collection('users').doc(this.user.uid).set({
           criteriaList: this.inputCriteriaList,
           name: this.user.displayName,
           uid: this.user.uid
         })
+        // ドキュメント作成後に画面にcriteriaListを渡す
         this.$emit('update-criteria', this.inputCriteriaList)
       } catch (error) {
         console.error(error)
