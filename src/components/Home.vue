@@ -5,12 +5,6 @@
       <record
         :user="user"
         :criteria-list="criteriaList"
-        @complete="setCompleteMessage"
-      />
-      <!-- modal -->
-      <complete
-        :complete-message="completeMessage"
-        @update-record="updateRecordList"
       />
       <div
         style="
@@ -18,7 +12,7 @@
           border-bottom-width: 1px;
           border-bottom-color: rgb(56, 68, 77);"
       >
-        <img :src="iconUrl">
+        <img :src="iconURL">
         <v-btn
           type="button"
           depressed
@@ -43,6 +37,8 @@
         </v-icon>
       </v-btn>
       <template v-if="recordList.length > 0">
+        <!-- TODO: record一覧 -->
+        <record-index />
         <div
           v-for="item in recordList"
           :key="item.id"
@@ -96,14 +92,14 @@
 
 <script>
 import Record from './Record'
-import Complete from './Complete'
 import Init from './Init'
 // mdiPencil https://qiita.com/nwtgck/items/e46b3ec16a0e79f482a5
 import { mdiPencil } from '@mdi/js'
 import firebase from '../firebase'
+import RecordIndex from './RecordIndex'
 
 export default {
-  components: { Record, Init, Complete },
+  components: { RecordIndex, Record, Init },
   props: {
     isLoading: Boolean
   },
@@ -113,15 +109,16 @@ export default {
       mdiPencil: mdiPencil,
       recordList: [],
       criteriaList: [],
-      iconUrl: '',
+      iconURL: '',
       id: '',
       completeMessage: ''
     }
   },
   async created () {
+    this.$emit('loading', true)
     // ユーザー取得
     this.user = await firebase.auth().currentUser
-    this.iconUrl = this.user.photoURL
+    this.iconURL = this.user.photoURL
     // recordの取得
     this.recordList = await this.getRecordList()
     // userのcriteriaListを取得
@@ -162,20 +159,13 @@ export default {
       this.criteriaList = val
     },
     /**
-     * 完了時のメッセージをセット
-     */
-    setCompleteMessage (val) {
-      this.completeMessage = val
-    },
-    /**
      * recordListを取得する
      * @returns {Array}
      */
     async getRecordList () {
-      this.$emit('loading', true)
       try {
         const recordsSnapshot = await firebase.firestore().collection('users')
-          .doc(this.user.uid).collection('records').get()
+          .doc(this.user.uid).collection('records').orderBy('date', 'desc').get()
         const result = recordsSnapshot.docs.map(doc => {
           return { data: doc.data(), id: doc.id }
         })
@@ -189,20 +179,14 @@ export default {
      * @returns {Array}
      */
     async getCriteriaList () {
-      // TODO: 並び順も考慮する
-      const result = []
+      let result = []
       try {
         const usersSnapshot = await firebase.firestore().collection('users')
           .where('uid', '==', this.user.uid).get()
         usersSnapshot.forEach(doc => {
-          result.push(doc.data().criteriaList)
+          result = doc.data().criteriaList
         })
         return result
-      // TODO: どっちがいい？？？？？
-      // const result1 = usersSnapshot.docs.map(doc => {
-      //   return doc.data().criteriaList
-      // })
-      // return result.pop() // or result.shift()
       } catch (error) {
         console.error(error)
       }

@@ -29,19 +29,9 @@
         <v-textarea
           v-model="memo"
           counter
-          label="感想"
+          label="コメント"
           :rules="rules"
         />
-        <label class="input-image ">
-          <v-icon
-            color="blue"
-            large
-          >fas fa-image</v-icon>
-          <input
-            type="file"
-            accept="image/jpeg,image/png,image/webp,image/gif"
-          >
-        </label>
         <v-btn
           type="button"
           class="mx-2"
@@ -53,13 +43,28 @@
         </v-btn>
       </div>
     </modal>
+    <complete>
+      <div>
+        記録完了！
+      </div>
+      <div>
+        <a
+          :href="shareURL"
+          target="_blank"
+          class="twitter-share-button"
+        >Tweetする</a>
+      </div>
+    </complete>
   </div>
 </template>
 
 <script>
 // import axios from 'axios'
 import firebase from '../firebase'
+import Complete from './Complete'
+
 export default {
+  components: { Complete },
   props: {
     user: {
       type: Object,
@@ -91,32 +96,44 @@ export default {
      */
     compareCriteriaWithScore () {
       if (this.criteriaList.length !== 0 && this.scores.length !== 0) {
-        return this.scores.every((element, index) => this.criteriaList[index].maxScore > parseInt(element))
+        return this.scores.every((score, index) => this.criteriaList[index].maxScore > parseInt(score))
       }
       return false
     },
     /**
-     * scoreの値を検証
+     * 合計点の算出
+     * @returns {Number}
+     */
+    sumScore () {
+      if (this.scores.length !== 0) {
+        return this.scores.reduce((acc, cur) => parseInt(acc) + parseInt(cur))
+      }
+      return NaN
+    },
+    /**
+     * 点数を検証
      * @returns {Boolean}
      */
     validScore () {
       return this.scores.every(element => parseInt(element) >= 0)
     },
     /**
-     * 合計値を検証
+     * 合計点を検証
      * @returns {Boolean}
      */
     validSumScore () {
       // scoresが初期値の場合、評価しない
-      if (this.scores.length === 0) {
+      if (isNaN(this.sumScore)) {
         return false
         // 合計が100を超えている場合false
       } else {
-        const sum = this.scores.reduce((accumlator, currentVal) => {
-          return parseInt(accumlator) + parseInt(currentVal)
-        })
-        return sum <= 100 && sum >= 0
+        return this.sumScore <= 100 && this.sumScore >= 0
       }
+    },
+    // TODO: 記録した点数の埋め込み
+    shareURL () {
+      const url = `https://twitter.com/share?text=${this.sumScore}点の牛めしを食いました。&url=https://gyumeshi-record.web.app/&hashtags=GyumeshiRecord`
+      return encodeURI(url)
     }
   },
   watch: {
@@ -139,6 +156,10 @@ export default {
      * 点数を記録する
      */
     async record () {
+      if (this.isDisabled) {
+        alert('HTMLを変更しましたね？')
+        return
+      }
       const data = {
         memo: this.memo,
         scores: this.scores.map(score => parseInt(score)),
@@ -149,8 +170,8 @@ export default {
         await db.collection('users').doc(this.user.uid)
           .collection('records').add(data)
         this.$modal.hide('record')
-        this.$emit('complete', '完了')
         this.$modal.show('complete')
+        // TODO: recordListの更新
       } catch (e) {
         console.error(e)
         // TODO: debug用後で消す

@@ -1,8 +1,9 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Welcome from '../components/Welcome'
-// import Init from '../components/Init'
+import User from '../components/User'
 import Home from '../components/Home'
+import NotFound from '../components/NotFound'
 import firebase from '../firebase'
 
 Vue.use(VueRouter)
@@ -10,7 +11,6 @@ Vue.use(VueRouter)
 const routes = [
   {
     path: '/',
-    name: 'Welcome',
     component: Welcome
   },
   // {
@@ -34,9 +34,17 @@ const routes = [
   // },
   {
     path: '/home',
-    name: 'Home',
     component: Home,
     meta: { requiresAuth: true }
+  },
+  {
+    path: '/user/:id',
+    component: User
+  },
+  {
+    path: '*',
+    component: NotFound,
+    title: '404 Not Found'
   }
 ]
 
@@ -50,7 +58,7 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   // firebaseでログイン中のユーザーを取得
-  firebase.auth().onAuthStateChanged(function (user) {
+  firebase.auth().onAuthStateChanged(user => {
     if (requiresAuth) {
       // ログインユーザーか判定
       if (user) {

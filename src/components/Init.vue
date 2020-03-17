@@ -1,45 +1,43 @@
 <template>
   <div class="init">
-    <form>
-      <table>
-        <thead>
-          <tr>
-            <th>No</th>
-            <th>項目</th>
-            <th>点数</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- TODO:後でindex直す -->
-          <tr
-            v-for="(criteria, index) in inputCriteriaList"
-            :key="index"
-          >
-            <td>{{ index + 1 }}</td>
-            <td>
-              <v-text-field
-                v-model="criteria.name"
-                name="name"
-                placeholder="肉"
-                outlined
-                autocomplete="off"
-              />
-            </td>
-            <td>
-              <v-text-field
-                v-model="criteria.maxScore"
-                name="max-score"
-                placeholder="20"
-                maxlength="3"
-                outlined
-                autocomplete="off"
-                @input="removeLetter($event, index)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </form>
+    <table>
+      <thead>
+        <tr>
+          <th>No</th>
+          <th>項目</th>
+          <th>点数</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- TODO:後でindex直す -->
+        <tr
+          v-for="(criteria, index) in inputCriteriaList"
+          :key="index"
+        >
+          <td>{{ index + 1 }}</td>
+          <td>
+            <v-text-field
+              v-model="criteria.name"
+              name="name"
+              placeholder="肉"
+              outlined
+              autocomplete="off"
+            />
+          </td>
+          <td>
+            <v-text-field
+              v-model="criteria.maxScore"
+              name="max-score"
+              placeholder="20"
+              maxlength="3"
+              outlined
+              autocomplete="off"
+              @input="removeLetter($event, index)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <div>
       <v-btn @click="addItem">
         追加する
@@ -55,19 +53,26 @@
         depressed
         color="amber darken-4"
         class="white--text"
-        :disabled="!validateSumMaxScore || !validateEachMaxScore"
+        :disabled="isDisabled"
         @click="createCriteria"
       >
         完了！
       </v-btn>
     </div>
+    <complete>
+      <div>
+        設定完了！
+      </div>
+    </complete>
   </div>
 </template>
 
 <script>
 import firebase from '../firebase'
+import Complete from './Complete'
 
 export default {
+  components: { Complete },
   props: {
     isLoading: Boolean,
     criteriaList: {
@@ -96,6 +101,9 @@ export default {
     }
   },
   computed: {
+    isDisabled () {
+      return !(this.validateSumMaxScore && this.validateEachMaxScore)
+    },
     /**
      * maxScoreの合計を計算する
      * @returns {Number}
@@ -154,14 +162,6 @@ export default {
   },
   methods: {
     /**
-     * 数字以外を除去する
-     * @param {Object} e
-     * @param {Number} index
-     */
-    removeLetter (e, index) {
-      this.inputCriteriaList[index].maxScore = e.target.value.replace(/\D/g, '')
-    },
-    /**
      * criteriaに要素を追加する
      */
     addItem () {
@@ -193,6 +193,10 @@ export default {
       } catch (error) {
         console.error(error)
       }
+    },
+    // TODO: initの更新の実装
+    async updateCriteria () {
+
     }
   }
 }
