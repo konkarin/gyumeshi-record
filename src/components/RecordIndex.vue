@@ -21,43 +21,56 @@
         <div>
           {{ item.data.memo }}
         </div>
-        <!-- TODO: ログイン中のみ表示 -->
-        <!-- <span style="display: flex">
+        <span
+          v-if="uid"
+          style="display: flex"
+        >
           <v-btn
             style="margin-left: auto;"
-            @click="deleteRecord(item.id)"
+            @click="deleteRecord(item.id, uid)"
           >
             delete
           </v-btn>
-        </span> -->
+        </span>
       </div>
     </div>
+    <slot v-if="recordList.length === 0" />
+    <Complete :modal-name="modalName">
+      <div>
+        削除完了！
+      </div>
+    </Complete>
   </div>
 </template>
 
 <script>
 import firebase from '../firebase'
+import Complete from './Complete'
+
 export default {
+  components: { Complete },
   props: {
-    recordList: {
-      type: Array,
-      default: () => []
+    isLoading: Boolean,
+    uid: {
+      type: String,
+      default: () => ''
     },
     criteriaList: {
       type: Array,
       default: () => []
     }
   },
+  data () {
+    return {
+      recordList: [],
+      modalName: 'delete-complete'
+    }
+  },
   async created () {
     // this.$emit('loading', true)
-    // // ユーザー取得
-    // // this.user = await firebase.auth().currentUser
-    // this.iconURL = this.user.photoURL
-    // // recordの取得
-    // this.recordList = await this.getRecordList()
-    // // userのcriteriaListを取得
-    // this.criteriaList = await this.getCriteriaList()
-    // // this.$emit('loading', false)
+    // recordの取得
+    this.recordList = await this.getRecordList()
+    // this.$emit('loading', false)
   },
   methods: {
     /**
@@ -65,10 +78,16 @@ export default {
      * @returns {Array}
      */
     async getRecordList () {
+      let result = []
+      if (!this.uid) {
+        console.log(this.uid, 'uidないよ')
+        return result
+      }
       try {
         const recordsSnapshot = await firebase.firestore().collection('users')
-          .doc(this.user.uid).collection('records').orderBy('date', 'desc').get()
-        const result = recordsSnapshot.docs.map(doc => {
+          .doc(this.uid).collection('records').orderBy('date', 'desc').get()
+        console.log(recordsSnapshot)
+        result = recordsSnapshot.docs.map(doc => {
           return { data: doc.data(), id: doc.id }
         })
         return result
@@ -77,21 +96,24 @@ export default {
       }
     },
     /**
-     * criteriaListを取得する
-     * @returns {Array}
+     * firestoreから記録を削除する
      */
-    async getCriteriaList () {
-      let result = []
+    async deleteRecord (recordId, uid) {
+      const deleteFunction = firebase.functions().httpsCallable('deleteRecord')
       try {
-        const usersSnapshot = await firebase.firestore().collection('users')
-          .where('uid', '==', this.user.uid).get()
-        usersSnapshot.forEach(doc => {
-          result = doc.data().criteriaList
-        })
-        return result
-      } catch (error) {
-        console.error(error)
+        await deleteFunction({ recordId, uid })
+        this.$modal.show(this.modalName)
+      } catch (e) {
+        console.error(e)
+        alert(e)
       }
+    },
+    /**
+     * completeモーダルクローズ時にrecordを更新する
+     */
+    async updateRecordList () {
+      this.recordList = await this.getRecordList()
+      this.$emit('loading', false)
     }
   }
 }

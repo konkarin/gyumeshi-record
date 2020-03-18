@@ -59,7 +59,7 @@
         完了！
       </v-btn>
     </div>
-    <complete>
+    <complete :modal-name="modalName">
       <div>
         設定完了！
       </div>
@@ -97,7 +97,8 @@ export default {
           name: '米',
           maxScore: 25
         }
-      ]
+      ],
+      modalName: 'init'
     }
   },
   computed: {
@@ -188,6 +189,7 @@ export default {
           name: this.user.displayName,
           uid: this.user.uid
         })
+        this.$modal.show(this.modalName)
         // ドキュメント作成後に画面にcriteriaListを渡す
         this.$emit('update-criteria', this.inputCriteriaList)
       } catch (error) {

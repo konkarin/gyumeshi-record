@@ -2,9 +2,9 @@
   <v-app>
     <h1
       style="
-      border-bottom-style:      solid;
-      border-bottom-width:      1px;
-      border-bottom-color:      rgb(56,      68,      77);"
+      border-bottom-style: solid;
+      border-bottom-width: 1px;
+      border-bottom-color: rgb(56, 68, 77);"
     >
       Gyumeshi Record
     </h1>

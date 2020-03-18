@@ -43,7 +43,7 @@
         </v-btn>
       </div>
     </modal>
-    <complete>
+    <complete :modal-name="modalName">
       <div>
         記録完了！
       </div>
@@ -79,7 +79,8 @@ export default {
     return {
       scores: [],
       memo: '',
-      rules: [v => v.length <= 140 || '140字までです']
+      rules: [v => v.length <= 140 || '140字までです'],
+      modalName: 'record-complete'
     }
   },
   computed: {
@@ -130,7 +131,6 @@ export default {
         return this.sumScore <= 100 && this.sumScore >= 0
       }
     },
-    // TODO: 記録した点数の埋め込み
     shareURL () {
       const url = `https://twitter.com/share?text=${this.sumScore}点の牛めしを食いました。&url=https://gyumeshi-record.web.app/&hashtags=GyumeshiRecord`
       return encodeURI(url)
@@ -170,7 +170,7 @@ export default {
         await db.collection('users').doc(this.user.uid)
           .collection('records').add(data)
         this.$modal.hide('record')
-        this.$modal.show('complete')
+        this.$modal.show(this.modalName)
         // TODO: recordListの更新
       } catch (e) {
         console.error(e)

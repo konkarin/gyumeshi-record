@@ -1,7 +1,7 @@
 <template>
   <div>
     <modal
-      name="complete"
+      :name="modalName"
       height="auto"
       width="300"
       :scrollable="true"
@@ -14,7 +14,7 @@
 <script>
 export default {
   props: {
-    completeMessage: {
+    modalName: {
       type: String,
       default: ''
     }
