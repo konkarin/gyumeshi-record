@@ -24,7 +24,13 @@
         </v-btn>
       </div>
     </div>
-    <template v-if="criteriaList.length > 0">
+    <template v-if="criteriaList.length === 0">
+      <Init
+        :criteria-list="criteriaList"
+        @update-criteria="updateCriteriaList"
+      />
+    </template>
+    <template v-else>
       <v-btn
         class="mx-2"
         fab
@@ -39,24 +45,14 @@
       <record-index
         :is-loading="isLoading"
         :uid="user.uid"
+        :record-list="recordList"
         :criteria-list="criteriaList"
         @loading="updateIsLoading"
+        @update-record="updateRecordList"
       >
         記録しよう！
       </record-index>
-      <div class="chart">
-        <!-- <img
-          width="100%"
-          src="https://2.bp.blogspot.com/-2ePKnVo4ubw/VXOTvlEJxtI/AAAAAAAAuDg/-OF1k_KjePY/s800/graph10_oresen1.png"
-        > -->
-      </div>
-    </template>
-    <!-- v-if="criteriaList.length > 0" -->
-    <template v-else>
-      <Init
-        :criteria-list="criteriaList"
-        @update-criteria="updateCriteriaList"
-      />
+      <div class="chart" />
     </template>
   </div>
 </template>
@@ -86,11 +82,13 @@ export default {
   async created () {
     // TODO: どこでローディング更新するか
     this.$emit('loading', true)
-    // ユーザー取得
+    // user取得
     this.user = await firebase.auth().currentUser
     this.iconURL = this.user.photoURL
-    // // userのcriteriaListを取得
-    this.criteriaList = await this.getCriteriaList()
+    // userのcriteriaListを取得
+    this.criteriaList = await this.getCriteriaList(this.user.uid)
+    // userのrecordListを取得
+    this.recordList = await this.getRecordList(this.user.uid)
     this.$emit('loading', false)
   },
   methods: {
@@ -122,13 +120,34 @@ export default {
      * criteriaListを取得する
      * @returns {Array}
      */
-    async getCriteriaList () {
+    async getCriteriaList (uid) {
       let result = []
       try {
         const usersSnapshot = await firebase.firestore().collection('users')
-          .where('uid', '==', this.user.uid).get()
+          .where('uid', '==', uid).get()
         usersSnapshot.forEach(doc => {
           result = doc.data().criteriaList
+        })
+        return result
+      } catch (error) {
+        console.error(error)
+      }
+    },
+    /**
+     * recordListを取得する
+     * @returns {Array}
+     */
+    async getRecordList (uid) {
+      let result = []
+      if (!uid) {
+        return result
+      }
+      try {
+        const recordsSnapshot = await firebase.firestore().collection('users')
+          .doc(uid).collection('records').orderBy('date', 'desc').get()
+
+        result = recordsSnapshot.docs.map(doc => {
+          return { data: doc.data(), id: doc.id }
         })
         return result
       } catch (error) {
@@ -139,7 +158,7 @@ export default {
      * completeモーダルクローズ時にrecordを更新する
      */
     async updateRecordList () {
-      this.recordList = await this.getRecordList()
+      this.recordList = await this.getRecordList(this.user.uid)
       this.$emit('loading', false)
     }
   }

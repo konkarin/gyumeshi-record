@@ -58,43 +58,18 @@ export default {
     criteriaList: {
       type: Array,
       default: () => []
+    },
+    recordList: {
+      type: Array,
+      default: () => []
     }
   },
   data () {
     return {
-      recordList: [],
       modalName: 'delete-complete'
     }
   },
-  async created () {
-    // this.$emit('loading', true)
-    // recordの取得
-    this.recordList = await this.getRecordList()
-    // this.$emit('loading', false)
-  },
   methods: {
-    /**
-     * recordListを取得する
-     * @returns {Array}
-     */
-    async getRecordList () {
-      let result = []
-      if (!this.uid) {
-        console.log(this.uid, 'uidないよ')
-        return result
-      }
-      try {
-        const recordsSnapshot = await firebase.firestore().collection('users')
-          .doc(this.uid).collection('records').orderBy('date', 'desc').get()
-        console.log(recordsSnapshot)
-        result = recordsSnapshot.docs.map(doc => {
-          return { data: doc.data(), id: doc.id }
-        })
-        return result
-      } catch (error) {
-        console.error(error)
-      }
-    },
     /**
      * firestoreから記録を削除する
      */
@@ -112,8 +87,7 @@ export default {
      * completeモーダルクローズ時にrecordを更新する
      */
     async updateRecordList () {
-      this.recordList = await this.getRecordList()
-      this.$emit('loading', false)
+      this.$emit('update-record')
     }
   }
 }

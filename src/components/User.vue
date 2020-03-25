@@ -2,8 +2,9 @@
   <div>
     <record-index
       :is-loading="isLoading"
-      :uid="uid"
-      :criteria-list="criteriaList"
+      :uid="userInfo.uid"
+      :record-list="recordList"
+      :criteria-list="userInfo.criteriaList"
     >
       {{ $route.params.accountId }}
     </record-index>
@@ -22,30 +23,33 @@ export default {
   data () {
     return {
       accountId: this.$route.params.accountId,
-      criteriaList: [],
-      uid: ''
+      recordList: [],
+      userInfo: {
+        uid: '',
+        criteriaList: []
+      }
     }
   },
   async created () {
     this.$emit('loading', true)
-    // FIXME: ???????????????????????????????????????
-    this.uid = await this.getUid()
-    // // userのcriteriaListを取得
-    this.criteriaList = await this.getCriteriaList()
+    // userInfo
+    this.userInfo = await this.getUserInfo(this.accountId)
+    this.recordList = await this.getRecordList(this.userInfo.uid)
     this.$emit('loading', false)
   },
   methods: {
     /**
-     * criteriaListを取得する
+     * userInfoを取得する
      * @returns {Array}
      */
-    async getUid () {
-      let result = ''
+    async getUserInfo (accountId) {
+      const result = {}
       try {
         const usersSnapshot = await firebase.firestore().collection('users')
-          .where('accountId', '==', this.accountId).get()
+          .where('accountId', '==', accountId).get()
         usersSnapshot.forEach(doc => {
-          result = doc.data().uid
+          result.uid = doc.data().uid
+          result.criteriaList = doc.data().criteriaList
         })
         return result
       } catch (error) {
@@ -53,16 +57,19 @@ export default {
       }
     },
     /**
-     * criteriaListを取得する
+     * recordListを取得する
      * @returns {Array}
      */
-    async getCriteriaList () {
-      let result = []
+    async getRecordList (uid) {
+      const result = []
+      if (!uid) {
+        return result
+      }
       try {
-        const usersSnapshot = await firebase.firestore().collection('users')
-          .where('accountId', '==', this.accountId).get()
-        usersSnapshot.forEach(doc => {
-          result = doc.data().criteriaList
+        const recordsSnapshot = await firebase.firestore().collection('users')
+          .doc(uid).collection('records').orderBy('date', 'desc').get()
+        recordsSnapshot.forEach(doc => {
+          result.push({ data: doc.data(), id: doc.id })
         })
         return result
       } catch (error) {
