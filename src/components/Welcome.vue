@@ -2,19 +2,19 @@
   <div class="welcome">
     <h2>君だけの点数を付けよう！</h2>
     <div>
-      <login-form>
+      <login>
         Twitterでログイン
-      </login-form>
+      </login>
     </div>
   </div>
 </template>
 
 <script>
-import LoginForm from './LoginForm'
+import Login from './Login'
 import firebase from '../firebase'
 
 export default {
-  components: { LoginForm },
+  components: { Login },
   props: {
     isLoading: Boolean
   },

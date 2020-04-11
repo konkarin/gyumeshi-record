@@ -1,24 +1,28 @@
 <template>
-  <div class="login">
-    <login-form :button-name="buttonName" />
-    <div>
-      アカウントをお持ちでない方は
-      <router-link to="/">
-        こちら
-      </router-link>
-    </div>
+  <div>
+    <v-btn
+      type="button"
+      depressed
+      color="amber darken-4"
+      class="white--text"
+      @click="login"
+    >
+      <slot />
+    </v-btn>
   </div>
 </template>
 
 <script>
-// import firebase from '../firebase'
-import LoginForm from './LoginForm'
+import firebase from '../firebase'
 export default {
-  components: { LoginForm },
-  data () {
-    return {
-      buttonName: 'ログイン'
+  methods: {
+    async login () {
+      const provider = new firebase.auth.TwitterAuthProvider()
+
+      await firebase.auth().signInWithRedirect(provider)
+        .catch(error => console.error(error))
     }
+
   }
 }
 </script>
