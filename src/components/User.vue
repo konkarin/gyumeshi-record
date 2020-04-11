@@ -2,12 +2,9 @@
   <div>
     <record-index
       :is-loading="isLoading"
-      :uid="userInfo.uid"
       :record-list="recordList"
       :criteria-list="userInfo.criteriaList"
-    >
-      {{ $route.params.accountId }}
-    </record-index>
+    />
   </div>
 </template>
 
@@ -32,19 +29,22 @@ export default {
   },
   async created () {
     this.$emit('loading', true)
-    // userInfo
+    // user情報を取得
     this.userInfo = await this.getUserInfo(this.accountId)
+    // userのrecordListを取得
     this.recordList = await this.getRecordList(this.userInfo.uid)
     this.$emit('loading', false)
   },
   methods: {
     /**
      * userInfoを取得する
+     * @param {String} accountId
      * @returns {Array}
      */
     async getUserInfo (accountId) {
       const result = {}
       try {
+        // userコレクションからuser情報を取得
         const usersSnapshot = await firebase.firestore().collection('users')
           .where('accountId', '==', accountId).get()
         usersSnapshot.forEach(doc => {
@@ -58,6 +58,7 @@ export default {
     },
     /**
      * recordListを取得する
+     * @param {String} uid
      * @returns {Array}
      */
     async getRecordList (uid) {
@@ -66,6 +67,7 @@ export default {
         return result
       }
       try {
+        // userコレクションのrecordサブコレクションからrecordを取得
         const recordsSnapshot = await firebase.firestore().collection('users')
           .doc(uid).collection('records').orderBy('date', 'desc').get()
         recordsSnapshot.forEach(doc => {

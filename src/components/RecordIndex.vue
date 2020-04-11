@@ -22,7 +22,7 @@
           {{ item.data.memo }}
         </div>
         <span
-          v-if="uid"
+          v-if="uid !== ''"
           style="display: flex"
         >
           <v-btn
@@ -35,7 +35,7 @@
       </div>
     </div>
     <slot v-if="recordList.length === 0" />
-    <Complete :modal-name="modalName">
+    <Complete :modal-name="completeModalName">
       <div>
         削除完了！
       </div>
@@ -66,7 +66,7 @@ export default {
   },
   data () {
     return {
-      modalName: 'delete-complete'
+      completeModalName: 'delete-complete'
     }
   },
   methods: {
@@ -77,7 +77,7 @@ export default {
       const deleteFunction = firebase.functions().httpsCallable('deleteRecord')
       try {
         await deleteFunction({ recordId, uid })
-        this.$modal.show(this.modalName)
+        this.$modal.show(this.completeModalName)
       } catch (e) {
         console.error(e)
         alert(e)

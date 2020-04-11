@@ -5,6 +5,7 @@
       <record
         :user="user"
         :criteria-list="criteriaList"
+        @update-record="updateRecordList"
       />
       <div
         style="
@@ -12,7 +13,9 @@
           border-bottom-width: 1px;
           border-bottom-color: rgb(56, 68, 77);"
       >
+        <!-- <router-link to="/settings"> -->
         <img :src="iconURL">
+        <!-- </router-link> -->
         <v-btn
           type="button"
           depressed
@@ -73,14 +76,13 @@ export default {
   data () {
     return {
       user: null,
+      iconURL: '',
       mdiPencil: mdiPencil,
       recordList: [],
-      criteriaList: [],
-      iconURL: ''
+      criteriaList: []
     }
   },
   async created () {
-    // TODO: どこでローディング更新するか
     this.$emit('loading', true)
     // user取得
     this.user = await firebase.auth().currentUser
@@ -106,23 +108,27 @@ export default {
     },
     /**
      * Init後にcriteriaLsitを更新する
+     * @param {Array} val criteriaList
      */
     updateCriteriaList (val) {
       this.criteriaList = val
     },
     /**
      * ローディングの更新
+     * @param {Boolean} val
      */
     updateIsLoading (val) {
       this.$emit('loading', val)
     },
     /**
      * criteriaListを取得する
+     * @param {String} uid uid
      * @returns {Array}
      */
     async getCriteriaList (uid) {
       let result = []
       try {
+        // userコレクションから採点基準を取得
         const usersSnapshot = await firebase.firestore().collection('users')
           .where('uid', '==', uid).get()
         usersSnapshot.forEach(doc => {
@@ -135,19 +141,20 @@ export default {
     },
     /**
      * recordListを取得する
+     * @param {String} uid uid
      * @returns {Array}
      */
     async getRecordList (uid) {
-      let result = []
+      const result = []
       if (!uid) {
         return result
       }
       try {
+        // userコレクションのrecordサブコレクションからrecordを取得
         const recordsSnapshot = await firebase.firestore().collection('users')
           .doc(uid).collection('records').orderBy('date', 'desc').get()
-
-        result = recordsSnapshot.docs.map(doc => {
-          return { data: doc.data(), id: doc.id }
+        recordsSnapshot.forEach(doc => {
+          result.push({ data: doc.data(), id: doc.id })
         })
         return result
       } catch (error) {

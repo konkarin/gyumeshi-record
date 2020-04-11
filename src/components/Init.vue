@@ -9,7 +9,6 @@
         </tr>
       </thead>
       <tbody>
-        <!-- TODO:後でindex直す -->
         <tr
           v-for="(criteria, index) in inputCriteriaList"
           :key="index"
@@ -32,7 +31,6 @@
               maxlength="3"
               outlined
               autocomplete="off"
-              @input="removeLetter($event, index)"
             />
           </td>
         </tr>
@@ -59,7 +57,7 @@
         完了！
       </v-btn>
     </div>
-    <complete :modal-name="modalName">
+    <complete :modal-name="completeModalName">
       <div>
         設定完了！
       </div>
@@ -98,7 +96,7 @@ export default {
           maxScore: 25
         }
       ],
-      modalName: 'init'
+      completeModalName: 'init'
     }
   },
   computed: {
@@ -179,7 +177,7 @@ export default {
       this.inputCriteriaList.pop()
     },
     /**
-     * 採点基準を作成する
+     * 採点基準をfirestoreに書き込む
      */
     async createCriteria () {
       const db = firebase.firestore()
@@ -189,7 +187,7 @@ export default {
           name: this.user.displayName,
           uid: this.user.uid
         })
-        this.$modal.show(this.modalName)
+        this.$modal.show(this.completeModalName)
         // ドキュメント作成後に画面にcriteriaListを渡す
         this.$emit('update-criteria', this.inputCriteriaList)
       } catch (error) {

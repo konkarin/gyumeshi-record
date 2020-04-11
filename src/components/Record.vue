@@ -171,11 +171,9 @@ export default {
           .collection('records').add(data)
         this.$modal.hide('record')
         this.$modal.show(this.modalName)
-        // TODO: recordListの更新
+        this.$emit('update-record')
       } catch (e) {
         console.error(e)
-        // TODO: debug用後で消す
-        alert(e)
       }
     }
   }
