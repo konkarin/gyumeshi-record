@@ -25,12 +25,12 @@
           v-if="uid !== ''"
           style="display: flex"
         >
-          <v-btn
+          <button
             style="margin-left: auto;"
             @click="deleteRecord(item.id, uid)"
           >
             delete
-          </v-btn>
+          </button>
         </span>
       </div>
     </div>

@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <div>
     <h1
       style="
       border-bottom-style: solid;
@@ -21,7 +21,7 @@
         @loading="updateIsLoading"
       />
     </div>
-  </v-app>
+  </div>
 </template>
 
 <script>

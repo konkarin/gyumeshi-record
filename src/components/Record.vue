@@ -16,23 +16,21 @@
           v-for="(criteria, index) in criteriaList"
         >
           <div :key="index">
-            <v-text-field
+            <input
               v-model="scores[index]"
               :label="criteria.name"
               name="score"
               :placeholder="String(criteria.maxScore)"
-              outlined
               autocomplete="off"
-            />
+            >
           </div>
         </template>
-        <v-textarea
+        <input
           v-model="memo"
-          counter
           label="コメント"
           :rules="rules"
-        />
-        <v-btn
+        >
+        <button
           type="button"
           class="mx-2"
           color="blue white--text"
@@ -40,7 +38,7 @@
           @click="record"
         >
           記録する
-        </v-btn>
+        </button>
       </div>
     </modal>
     <complete :modal-name="modalName">

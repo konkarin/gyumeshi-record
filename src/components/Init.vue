@@ -15,47 +15,43 @@
         >
           <td>{{ index + 1 }}</td>
           <td>
-            <v-text-field
+            <input
               v-model="criteria.name"
               name="name"
               placeholder="肉"
-              outlined
               autocomplete="off"
-            />
+            >
           </td>
           <td>
-            <v-text-field
+            <input
               v-model="criteria.maxScore"
               name="max-score"
               placeholder="20"
               maxlength="3"
-              outlined
               autocomplete="off"
-            />
+            >
           </td>
         </tr>
       </tbody>
     </table>
     <div>
-      <v-btn @click="addItem">
+      <button @click="addItem">
         追加する
-      </v-btn>
-      <v-btn @click="removeItem">
+      </button>
+      <button @click="removeItem">
         削除する
-      </v-btn>
+      </button>
     </div>
     <span :style="{'color': sumMaxScoreColor}">{{ calcSumMaxScore }} / 100</span>
     <div>
-      <v-btn
-        type="submit"
-        depressed
+      <button
         color="amber darken-4"
         class="white--text"
         :disabled="isDisabled"
         @click="createCriteria"
       >
         完了！
-      </v-btn>
+      </button>
     </div>
     <complete :modal-name="completeModalName">
       <div>

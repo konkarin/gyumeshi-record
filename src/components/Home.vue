@@ -16,15 +16,11 @@
         <!-- <router-link to="/settings"> -->
         <img :src="iconURL">
         <!-- </router-link> -->
-        <v-btn
-          type="button"
-          depressed
-          color="amber darken-4"
-          class="white--text"
+        <button
           @click="logout"
         >
           ログアウト
-        </v-btn>
+        </button>
       </div>
     </div>
     <template v-if="criteriaList.length === 0">
@@ -34,17 +30,11 @@
       />
     </template>
     <template v-else>
-      <v-btn
-        class="mx-2"
-        fab
-        dark
-        color="blue"
+      <button
         @click="showRecord"
       >
-        <v-icon dark>
-          {{ mdiPencil }}
-        </v-icon>
-      </v-btn>
+        記録する
+      </button>
       <record-index
         :is-loading="isLoading"
         :uid="user.uid"

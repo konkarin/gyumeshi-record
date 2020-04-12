@@ -1,14 +1,11 @@
 <template>
   <div>
-    <v-btn
+    <button
       type="button"
-      depressed
-      color="amber darken-4"
-      class="white--text"
       @click="login"
     >
       <slot />
-    </v-btn>
+    </button>
   </div>
 </template>
 
